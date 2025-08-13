@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シフト管理画面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        button {
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+        }
+        .delete {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>シフト管理画面</h1>
+    <p>従業員の打刻データ一覧を管理できます。</p>
+
+    <table id="employeeTable">
+        <thead>
+            <tr>
+                <th>名前</th>
+                <th>打刻日時</th>
+                <th>ステータス</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- データがここに挿入されます -->
+        </tbody>
+    </table>
+
+    <script>
+        const SS_ID = "1zitwMcMRaM3d6Irej738XZS5rjX9v_Pf5PmKxf9iI90"; // GoogleスプレッドシートID
+        const API_URL = `https://script.google.com/macros/s/AKfycbz6qkC8T_a6mkQQ_wgaO85qjZl8aWUiamukBtpf-syC8xERgPrS10j3pHYN8B2DfP5B/exec?action=employees`;
+
+        // 従業員データを取得してテーブルに表示
+        async function fetchEmployees() {
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+
+                const tableBody = document.querySelector("#employeeTable tbody");
+                tableBody.innerHTML = "";
+
+                data.forEach(row => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${row.name}</td>
+                        <td>${row.timestamp}</td>
+                        <td>${row.status}</td>
+                        <td><button class="delete" onclick="deleteEntry('${row.id}')">削除</button></td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("データ取得エラー:", error);
+            }
+        }
+
+        // データ削除処理
+        async function deleteEntry(id) {
+            if (!confirm("本当に削除しますか？")) return;
+            try {
+                await fetch(`${API_URL}&deleteId=${id}`, { method: "GET" });
+                alert("削除しました");
+                fetchEmployees();
+            } catch (error) {
+                console.error("削除エラー:", error);
+            }
+        }
+
+        fetchEmployees();
+    </script>
+
+</body>
+</html>
