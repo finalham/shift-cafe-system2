@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>打刻画面</title>
+  <style>
+    body { font-family: sans-serif; max-width: 400px; margin: auto; padding: 20px; }
+    label { display: block; margin-top: 10px; }
+    input, button, select { width: 100%; padding: 8px; margin-top: 5px; }
+    button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+    .message { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>勤務打刻</h1>
+  
+  <label>氏名:
+    <input type="text" id="name" placeholder="氏名を入力" required>
+  </label>
+  
+  <label>打刻種別:
+    <select id="action">
+      <option value="checkin">出勤</option>
+      <option value="checkout">退勤</option>
+    </select>
+  </label>
+
+  <label>時給（円）:
+    <input type="number" id="wage" placeholder="例: 1200" required>
+  </label>
+  
+  <button onclick="sendData()">送信</button>
+  
+  <div class="message" id="message"></div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbz6qkC8T_a6mkQQ_wgaO85qjZl8aWUiamukBtpf-syC8xERgPrS10j3pHYN8B2DfP5B/exec"; // ← あなたのURL
+
+    async function sendData() {
+      const name = document.getElementById('name').value;
+      const action = document.getElementById('action').value;
+      const wage = document.getElementById('wage').value;
+      
+      if (!name || !wage) {
+        document.getElementById('message').innerText = "氏名と時給を入力してください";
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}?action=${action}&name=${encodeURIComponent(name)}&wage=${encodeURIComponent(wage)}`);
+        const text = await res.text();
+        document.getElementById('message').innerText = text;
+      } catch (err) {
+        document.getElementById('message').innerText = "エラーが発生しました";
+      }
+    }
+  </script>
+</body>
+</html>
